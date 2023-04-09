@@ -1,10 +1,13 @@
 package kz.kartayev.LocationSystem.contollers;
 
+import kz.kartayev.LocationSystem.dto.LocationDTO;
 import kz.kartayev.LocationSystem.dto.UserDTO;
+import kz.kartayev.LocationSystem.models.Access;
 import kz.kartayev.LocationSystem.models.Location;
 import kz.kartayev.LocationSystem.models.User;
 import kz.kartayev.LocationSystem.services.LocationService;
 import kz.kartayev.LocationSystem.services.UserService;
+import kz.kartayev.LocationSystem.util.LocationValidator;
 import kz.kartayev.LocationSystem.util.UserError;
 import kz.kartayev.LocationSystem.util.UserErrorResponse;
 import kz.kartayev.LocationSystem.util.UserValidator;
@@ -22,20 +25,23 @@ import static kz.kartayev.LocationSystem.util.ErrorUtil.getFieldErrors;
 @RequestMapping("/user")
 public class UserController {
     private final UserService userService;
-    private final LocationService locationService;
+
     private final ModelMapper modelMapper;
     private final UserValidator validator;
+    private final LocationValidator locationValidator;
+
+    private final LocationService locationService;
     @Autowired
-    public UserController(UserService userService, LocationService locationService, ModelMapper modelMapper, UserValidator validator) {
+    public UserController(UserService userService, ModelMapper modelMapper, UserValidator validator , LocationValidator locationValidator, LocationService locationService) {
         this.userService = userService;
-        this.locationService = locationService;
         this.modelMapper = modelMapper;
         this.validator = validator;
+        this.locationValidator = locationValidator;
+        this.locationService = locationService;
     }
 
     @GetMapping
     public List<User> getUsers(){
-
         return userService.findAll();
     }
 
@@ -56,9 +62,22 @@ public class UserController {
     }
 
     @GetMapping("/{id}/my")
-    public Location myLocation(@PathVariable("id") int id){
+    public List<Location> myLocation(@PathVariable("id") int id){
         User user = userService.findOne(id);
-        return locationService.findByOwner(user);
+        return user.getLocationList();
+    }
+    @PostMapping("{id}/new")
+    public ResponseEntity<HttpStatus> newLocation(@PathVariable("id") int id, @RequestBody @Valid LocationDTO locationDTO,
+                                                  BindingResult bindingResult){
+        Location location = convertToLocation(locationDTO);
+        locationValidator.validate(location, bindingResult);
+        if(bindingResult.hasErrors()){
+            getFieldErrors(bindingResult);
+        }
+        location.setOwner(userService.findOne(id));
+        location.setStatus(String.valueOf(Access.OWNER));
+        locationService.save(location);
+        return ResponseEntity.ok(HttpStatus.ACCEPTED);
     }
 
     @ExceptionHandler
@@ -68,5 +87,9 @@ public class UserController {
     }
     private User convertToUser(UserDTO userDTO){
         return modelMapper.map(userDTO, User.class);
+    }
+
+    private Location convertToLocation(LocationDTO locationDTO){
+        return modelMapper.map(locationDTO, Location.class);
     }
 }

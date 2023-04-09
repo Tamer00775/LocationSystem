@@ -1,5 +1,7 @@
 package kz.kartayev.LocationSystem.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
@@ -16,17 +18,22 @@ public class Location implements Serializable {
     @NotEmpty
     private String location;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", referencedColumnName = "id")
+    @JsonIgnore
     private User owner;
+
+    @Column(name="sharedwith")
+    private String status;
 
     public Location(){
     }
 
-    public Location(int id, String location, User owner){
+    public Location(int id, String location, User owner, String status){
         this.id = id;
         this.location = location;
         this.owner = owner;
+        this.status = status;
     }
 
     public int getId() {
@@ -51,6 +58,14 @@ public class Location implements Serializable {
 
     public void setOwner(User owner) {
         this.owner = owner;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     @Override

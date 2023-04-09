@@ -1,6 +1,8 @@
 package kz.kartayev.LocationSystem.models;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
@@ -15,23 +17,24 @@ public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="id")
-    int id;
+    private int id;
 
     @Column(name="name")
     @NotEmpty(message = "name should be not null")
     @Size(min = 2, max = 30, message = "size should be between 2 and 30")
-    String name;
+    private String name;
 
     @Column(name="age")
     @NotNull
     @Min(value = 0, message = "Age should be greater than 2")
-    int age;
+    private int age;
 
     @Column(name = "email")
     @NotEmpty
-    String email;
+    private String email;
 
     @OneToMany(mappedBy = "owner")
+    @JsonIgnore
     private List<Location> locationList;
 
     public User(String name, int age, String email){

@@ -1,6 +1,7 @@
 package kz.kartayev.LocationSystem.contollers;
 
 import kz.kartayev.LocationSystem.dto.LocationDTO;
+import kz.kartayev.LocationSystem.models.Access;
 import kz.kartayev.LocationSystem.models.Location;
 import kz.kartayev.LocationSystem.services.LocationService;
 import kz.kartayev.LocationSystem.services.UserService;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+
 import static kz.kartayev.LocationSystem.util.ErrorUtil.getFieldErrors;
 
 @RestController
@@ -46,8 +48,14 @@ public class LocationController {
         if(bindingResult.hasErrors()){
             getFieldErrors(bindingResult);
         }
+        location.setStatus(String.valueOf(Access.AVAILABLE));
         locationService.save(location);
         return ResponseEntity.ok(HttpStatus.ACCEPTED);
+    }
+
+    @GetMapping("{id}")
+    public Location get(@PathVariable("id") int id){
+        return locationService.findOne(id);
     }
     @ExceptionHandler
     public ResponseEntity<UserErrorResponse> handleException(UserError error){
