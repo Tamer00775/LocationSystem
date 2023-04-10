@@ -27,7 +27,7 @@ public class UserValidator implements Validator {
     public void validate(Object target, Errors errors) {
         User user = (User) target;
         Optional<User> check = Optional.ofNullable(service.findByEmail(user.getEmail()));
-        if(!check.isPresent()){
+        if(check.isPresent()){
             errors.rejectValue("email", "", "This email already is used");
         }
     }

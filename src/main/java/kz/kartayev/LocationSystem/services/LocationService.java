@@ -35,7 +35,6 @@ public class LocationService {
 
     @Transactional
     public void save(Location location){
-        
         locationRepository.save(location);
     }
 
