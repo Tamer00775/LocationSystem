@@ -17,7 +17,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import static kz.kartayev.LocationSystem.util.ErrorUtil.getFieldErrors;
 
 @RestController
@@ -66,6 +69,18 @@ public class UserController {
     public List<Location> myLocation(@PathVariable("id") int id){
         User user = userService.findOne(id);
         return user.getLocationList();
+    }
+
+    @GetMapping("/{id}/friends")
+    public List<User> myFriends(@PathVariable("id") int id){
+        return userService.findFriend(id);
+    }
+
+    @GetMapping("/{id}/closure")
+    public List<User> closures(@PathVariable("id") int id, @RequestBody String location){
+        List<Location> locations = locationService.locationStartsWith(location);
+        System.out.println(locations);
+        return userService.getAllFriendOnLocation(id, locations);
     }
 
     @PostMapping("/{id}/my/{idLoc}/share")

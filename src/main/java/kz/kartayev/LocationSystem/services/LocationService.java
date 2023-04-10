@@ -44,4 +44,8 @@ public class LocationService {
     public Location findByOwner(User owner){
         return locationRepository.findLocationByOwner(owner);
     }
+
+    public List<Location> locationStartsWith(String s){
+        return locationRepository.findLocationByLocationStartingWith(s);
+    }
 }

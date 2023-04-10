@@ -34,7 +34,6 @@ public class User implements Serializable {
     private String email;
 
     @OneToMany(mappedBy = "owner")
-    @JsonIgnore
     private List<Location> locationList;
 
     public User(String name, int age, String email){
