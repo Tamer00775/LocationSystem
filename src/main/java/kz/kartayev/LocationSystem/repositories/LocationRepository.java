@@ -12,5 +12,5 @@ public interface LocationRepository extends JpaRepository<Location, Integer>  {
         Location findLocationByLocation(String s);
         Location findLocationByOwner(User owner);
 
-        List<Location> findLocationByLocationStartingWith(String s);
+        List<Location> searchLocationsByLocationStartingWith(String s);
 }

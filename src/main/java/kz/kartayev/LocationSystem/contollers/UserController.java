@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -77,9 +78,9 @@ public class UserController {
     }
 
     @GetMapping("/{id}/closure")
-    public List<User> closures(@PathVariable("id") int id, @RequestBody String location){
-        List<Location> locations = locationService.locationStartsWith(location);
-        System.out.println(locations);
+    public List<User> closures(@PathVariable("id") int id, @RequestBody LocationDTO locationDTO){
+        List<Location> locations = locationService.locationStartsWith(locationDTO.getLocation());
+        System.out.println(locations.size());
         return userService.getAllFriendOnLocation(id, locations);
     }
 

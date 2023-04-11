@@ -46,6 +46,6 @@ public class LocationService {
     }
 
     public List<Location> locationStartsWith(String s){
-        return locationRepository.findLocationByLocationStartingWith(s);
+        return locationRepository.searchLocationsByLocationStartingWith(s);
     }
 }
