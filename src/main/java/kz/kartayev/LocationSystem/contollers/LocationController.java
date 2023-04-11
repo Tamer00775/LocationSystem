@@ -14,56 +14,56 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
 import javax.validation.Valid;
 import java.util.List;
-
 import static kz.kartayev.LocationSystem.util.ErrorUtil.getFieldErrors;
 
 @RestController
 @RequestMapping("/location")
 public class LocationController {
-    private final LocationService locationService;
-    private final ModelMapper mapper;
-    private final LocationValidator validator;
-    private final UserService userService;
-    @Autowired
-    public LocationController(LocationService locationService, ModelMapper mapper, LocationValidator validator, UserService userService) {
-        this.locationService = locationService;
-        this.mapper = mapper;
-        this.validator = validator;
-        this.userService = userService;
-    }
+  private final LocationService locationService;
+  private final ModelMapper mapper;
+  private final LocationValidator validator;
+  private final UserService userService;
 
-    @GetMapping
-    public List<Location> index(){
-        return locationService.findAll();
-    }
+  @Autowired
+  public LocationController(LocationService locationService, ModelMapper mapper, LocationValidator validator, UserService userService) {
+    this.locationService = locationService;
+    this.mapper = mapper;
+    this.validator = validator;
+    this.userService = userService;
+  }
 
-    @PostMapping("/add")
-    public ResponseEntity<HttpStatus> add(@RequestBody @Valid LocationDTO locationDTO, BindingResult bindingResult){
-        Location location = convertToLocation(locationDTO);
-        location.setOwner(userService.findOne(locationDTO.getOwner()));
-        validator.validate(location, bindingResult);
-        if(bindingResult.hasErrors()){
-            getFieldErrors(bindingResult);
-        }
-        location.setStatus(String.valueOf(Access.AVAILABLE));
-        locationService.save(location);
-        return ResponseEntity.ok(HttpStatus.ACCEPTED);
-    }
+  @GetMapping
+  public List<Location> index() {
+    return locationService.findAll();
+  }
 
-    @GetMapping("{id}")
-    public Location get(@PathVariable("id") int id){
-        return locationService.findOne(id);
+  @PostMapping("/add")
+  public ResponseEntity<HttpStatus> add(@RequestBody @Valid LocationDTO locationDTO, BindingResult bindingResult) {
+    Location location = convertToLocation(locationDTO);
+    location.setOwner(userService.findOne(locationDTO.getOwner()));
+    validator.validate(location, bindingResult);
+    if (bindingResult.hasErrors()) {
+      getFieldErrors(bindingResult);
     }
-    @ExceptionHandler
-    public ResponseEntity<UserErrorResponse> handleException(UserError error){
-        UserErrorResponse response = new UserErrorResponse(error.getMessage(), System.currentTimeMillis());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
+    location.setStatus(String.valueOf(Access.AVAILABLE));
+    locationService.save(location);
+    return ResponseEntity.ok(HttpStatus.ACCEPTED);
+  }
 
-    private Location convertToLocation(LocationDTO dto){
-        return mapper.map(dto, Location.class);
-    }
+  @GetMapping("{id}")
+  public Location get(@PathVariable("id") int id) {
+    return locationService.findOne(id);
+  }
+
+  @ExceptionHandler
+  public ResponseEntity<UserErrorResponse> handleException(UserError error) {
+    UserErrorResponse response = new UserErrorResponse(error.getMessage(), System.currentTimeMillis());
+    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+  }
+
+  private Location convertToLocation(LocationDTO dto) {
+    return mapper.map(dto, Location.class);
+  }
 }

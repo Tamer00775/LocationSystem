@@ -17,10 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
-import java.util.Arrays;
-import java.util.HashSet;
+
 import java.util.List;
-import java.util.Set;
 
 import static kz.kartayev.LocationSystem.util.ErrorUtil.getFieldErrors;
 
@@ -56,7 +54,8 @@ public class UserController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<HttpStatus> add(@RequestBody @Valid UserDTO userDTO, BindingResult bindingResult){
+    public ResponseEntity<HttpStatus> add(@RequestBody @Valid UserDTO userDTO,
+                                          BindingResult bindingResult){
         User user = convertToUser(userDTO);
         validator.validate(user, bindingResult);
         if(bindingResult.hasErrors()){
@@ -78,14 +77,16 @@ public class UserController {
     }
 
     @GetMapping("/{id}/closure")
-    public List<User> closures(@PathVariable("id") int id, @RequestBody LocationDTO locationDTO){
+    public List<User> closures(@PathVariable("id") int id,
+                               @RequestBody LocationDTO locationDTO, BindingResult bindingResult){
         List<Location> locations = locationService.locationStartsWith(locationDTO.getLocation());
         System.out.println(locations.size());
         return userService.getAllFriendOnLocation(id, locations);
     }
 
     @PostMapping("/{id}/my/{idLoc}/share")
-    public ResponseEntity<HttpStatus> share(@PathVariable("id") int id, @PathVariable("idLoc") int locId,
+    public ResponseEntity<HttpStatus> share(@PathVariable("id") int id,
+                                            @PathVariable("idLoc") int locId,
                                             @RequestBody @Valid ShareDTO shareDTO, BindingResult bindingResult){
         Share share = convertToShareDTO(shareDTO);
         share.setLocation_id(locId);
@@ -97,7 +98,8 @@ public class UserController {
         return ResponseEntity.ok(HttpStatus.ACCEPTED);
     }
     @PostMapping("{id}/new")
-    public ResponseEntity<HttpStatus> newLocation(@PathVariable("id") int id, @RequestBody @Valid LocationDTO locationDTO,
+    public ResponseEntity<HttpStatus> newLocation(@PathVariable("id") int id,
+                                                  @RequestBody @Valid LocationDTO locationDTO,
                                                   BindingResult bindingResult){
         Location location = convertToLocation(locationDTO);
         locationValidator.validate(location, bindingResult);
