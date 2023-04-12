@@ -32,15 +32,17 @@ public class UserController {
 
     private final LocationService locationService;
     private final ShareService shareService;
+    private final ShareValidator shareValidator;
 
     @Autowired
-    public UserController(UserService userService, ModelMapper modelMapper, UserValidator validator , LocationValidator locationValidator, LocationService locationService, ShareService shareService) {
+    public UserController(UserService userService, ModelMapper modelMapper, UserValidator validator , LocationValidator locationValidator, LocationService locationService, ShareService shareService, ShareValidator shareValidator) {
         this.userService = userService;
         this.modelMapper = modelMapper;
         this.validator = validator;
         this.locationValidator = locationValidator;
         this.locationService = locationService;
         this.shareService = shareService;
+        this.shareValidator = shareValidator;
     }
 
     @GetMapping
@@ -87,14 +89,13 @@ public class UserController {
         // TODO : Validation Access with Admin, Read, Owner
         if(bindingResult.hasErrors())
             getFieldErrors(bindingResult);
-        shareService.manageAccess(id, friend_id, accessDTO.getAccess());
+        shareService.manageAccess(id, friend_id, accessDTO.getAccess(), accessDTO.getLocation_id());
         return ResponseEntity.ok(HttpStatus.OK);
     }
     @GetMapping("/{id}/closure")
     public List<User> closures(@PathVariable("id") int id,
                                @RequestBody LocationDTO locationDTO, BindingResult bindingResult){
         List<Location> locations = locationService.locationStartsWith(locationDTO.getLocation());
-        System.out.println(locations.size());
         return userService.getAllFriendOnLocation(id, locations);
     }
 
@@ -105,7 +106,7 @@ public class UserController {
         Share share = convertToShareDTO(shareDTO);
         share.setLocation_id(locId);
         share.setSend_id(id);
-      //  shareValidator.validate(share, bindingResult);
+        shareValidator.validate(share, bindingResult);
         if(bindingResult.hasErrors())
             getFieldErrors(bindingResult);
         userService.share(share);

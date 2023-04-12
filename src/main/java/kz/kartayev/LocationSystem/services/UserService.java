@@ -55,7 +55,7 @@ public class UserService {
     @Transactional
     public void share(Share share){
         Optional<Location> location = locationRepository.findById(share.getLocation_id());
-        // README : Сохрани все локации которые были отправлены другому человеку
+        // TODO : Сохрани все локации которые были отправлены другому человеку
         if(location.isPresent()){
             User user = findOne(share.getGetter_id());
             user.getLocationList().add(location.get());
