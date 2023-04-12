@@ -1,7 +1,5 @@
 package kz.kartayev.LocationSystem.dto;
 
-import kz.kartayev.LocationSystem.models.User;
-
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 

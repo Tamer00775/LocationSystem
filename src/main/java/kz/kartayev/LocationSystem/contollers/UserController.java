@@ -1,5 +1,6 @@
 package kz.kartayev.LocationSystem.contollers;
 
+import kz.kartayev.LocationSystem.dto.AccessDTO;
 import kz.kartayev.LocationSystem.dto.LocationDTO;
 import kz.kartayev.LocationSystem.dto.ShareDTO;
 import kz.kartayev.LocationSystem.dto.UserDTO;
@@ -8,6 +9,7 @@ import kz.kartayev.LocationSystem.models.Location;
 import kz.kartayev.LocationSystem.models.Share;
 import kz.kartayev.LocationSystem.models.User;
 import kz.kartayev.LocationSystem.services.LocationService;
+import kz.kartayev.LocationSystem.services.ShareService;
 import kz.kartayev.LocationSystem.services.UserService;
 import kz.kartayev.LocationSystem.util.*;
 import org.modelmapper.ModelMapper;
@@ -17,30 +19,28 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
-
 import java.util.List;
-
 import static kz.kartayev.LocationSystem.util.ErrorUtil.getFieldErrors;
 
 @RestController
 @RequestMapping("/user")
 public class UserController {
     private final UserService userService;
-
     private final ModelMapper modelMapper;
     private final UserValidator validator;
     private final LocationValidator locationValidator;
 
     private final LocationService locationService;
-    private final ShareValidator shareValidator;
+    private final ShareService shareService;
+
     @Autowired
-    public UserController(UserService userService, ModelMapper modelMapper, UserValidator validator , LocationValidator locationValidator, LocationService locationService, ShareValidator shareValidator) {
+    public UserController(UserService userService, ModelMapper modelMapper, UserValidator validator , LocationValidator locationValidator, LocationService locationService, ShareService shareService) {
         this.userService = userService;
         this.modelMapper = modelMapper;
         this.validator = validator;
         this.locationValidator = locationValidator;
         this.locationService = locationService;
-        this.shareValidator = shareValidator;
+        this.shareService = shareService;
     }
 
     @GetMapping
@@ -75,7 +75,21 @@ public class UserController {
     public List<User> myFriends(@PathVariable("id") int id){
         return userService.findFriend(id);
     }
-
+    @GetMapping("/{id}/friends/{friend_id}")
+    public User myFriends(@PathVariable("id") int id, @PathVariable("friend_id") int friend_id){
+        return userService.findOne(friend_id);
+    }
+    @PostMapping("/{id}/friends/{friend_id}/manage")
+    public ResponseEntity<HttpStatus> manageStatus(@PathVariable("id") int id,
+                                                   @PathVariable("friend_id") int friend_id,
+                                                   @RequestBody @Valid AccessDTO accessDTO,
+                                                   BindingResult bindingResult){
+        // TODO : Validation Access with Admin, Read, Owner
+        if(bindingResult.hasErrors())
+            getFieldErrors(bindingResult);
+        shareService.manageAccess(id, friend_id, accessDTO.getAccess());
+        return ResponseEntity.ok(HttpStatus.OK);
+    }
     @GetMapping("/{id}/closure")
     public List<User> closures(@PathVariable("id") int id,
                                @RequestBody LocationDTO locationDTO, BindingResult bindingResult){
