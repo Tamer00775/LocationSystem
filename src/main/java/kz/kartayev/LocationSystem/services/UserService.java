@@ -1,21 +1,21 @@
 package kz.kartayev.LocationSystem.services;
 
-import kz.kartayev.LocationSystem.models.Location;
-import kz.kartayev.LocationSystem.models.Share;
-import kz.kartayev.LocationSystem.models.User;
-import kz.kartayev.LocationSystem.repositories.LocationRepository;
-import kz.kartayev.LocationSystem.repositories.ShareRepository;
-import kz.kartayev.LocationSystem.repositories.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import kz.kartayev.LocationSystem.models.Location;
+import kz.kartayev.LocationSystem.models.Share;
+import kz.kartayev.LocationSystem.models.User;
+import kz.kartayev.LocationSystem.repositories.LocationRepository;
+import kz.kartayev.LocationSystem.repositories.ShareRepository;
+import kz.kartayev.LocationSystem.repositories.UserRepository;
+import org.hibernate.Hibernate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
@@ -58,7 +58,10 @@ public class UserService {
         // TODO : Сохрани все локации которые были отправлены другому человеку
         if(location.isPresent()){
             User user = findOne(share.getGetter_id());
-            user.getLocationList().add(location.get());
+            List<Location> locations = user.getLocationList();
+            locations.add(location.get());
+            user.setLocationList(locations);
+            Hibernate.initialize(user);
             userRepository.save(user);
             shareRepository.save(share);
         }
@@ -66,8 +69,6 @@ public class UserService {
 
     public List<User> getAllFriendOnLocation(int id, List<Location> locations){
         List<Share> shares = shareRepository.findAll().stream().filter(a -> a.getSend_id() == id).toList();
-        System.out.println(shares.size());
-        // 1 3 4
         Set<User> users= new HashSet<>();
         for (int i = 0; i < shares.size(); i++) {
             Optional<Location> temp = locationRepository.findById(shares.get(i).getLocation_id());

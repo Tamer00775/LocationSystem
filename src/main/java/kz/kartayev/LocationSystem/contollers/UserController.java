@@ -106,9 +106,9 @@ public class UserController {
         Share share = convertToShareDTO(shareDTO);
         share.setLocation_id(locId);
         share.setSend_id(id);
-        shareValidator.validate(share, bindingResult);
-        if(bindingResult.hasErrors())
-            getFieldErrors(bindingResult);
+       // shareValidator.validate(share, bindingResult);
+       // if(bindingResult.hasErrors())
+       //     getFieldErrors(bindingResult);
         userService.share(share);
         return ResponseEntity.ok(HttpStatus.ACCEPTED);
     }
